@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Vacation Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-header h1 {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .filters-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .filters-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .vacation-section {
+            margin-top: 30px;
+        }
+
+        .vacation-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .vacation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .vacation-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vacation-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .vacation-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        }
+
+        .vacation-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .vacation-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .vacation-description {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .selected-vacation {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .selected-vacation h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .selected-vacation p {
+            color: #388e3c;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .filter-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .vacation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Vacation Management Dashboard</h1>
+            <div class="user-info">
+                <div class="user-avatar">U</div>
+                <div>
+                    <div>Welcome, User!</div>
+                    <small>Vacation Management System</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="filters-section">
+                <h2>Location Selection</h2>
+                <div class="filter-group">
+                    <div class="form-group">
+                        <label for="state">Select State</label>
+                        <select id="state" onchange="updateCities()">
+                            <option value="">Select State</option>
+                            <option value="maharashtra">Maharashtra</option>
+                            <option value="gujarat">Gujarat</option>
+                            <option value="karnataka">Karnataka</option>
+                            <option value="tamilnadu">Tamil Nadu</option>
+                            <option value="delhi">Delhi</option>
+                            <option value="up">Uttar Pradesh</option>
+                            <option value="westbengal">West Bengal</option>
+                            <option value="rajasthan">Rajasthan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city">Select City</label>
+                        <select id="city">
+                            <option value="">Select City</option>
+                            <!-- Cities will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vacation-section">
+                <h2>Select Vacation Type</h2>
+                <div class="vacation-grid">
+                    <div class="vacation-card" onclick="selectVacation('birthday')">
+                        <div class="vacation-icon">🎂</div>
+                        <div class="vacation-title">Birthday</div>
+                        <div class="vacation-description">Celebrate special birthdays and anniversaries</div>
+                    </div>
+
+                    <div class="vacation-card" onclick="selectVacation('death')">
+                        <div class="vacation-icon">⚰️</div>
+                        <div class="vacation-title">Death Day</div>
+                        <div class="vacation-description">Memorial days and remembrance</div>
+                    </div>
+
+                    <div class="vacation-card" onclick="selectVacation('marriage')">
+                        <div class="vacation-icon">💒</div>
+                        <div class="vacation-title">Marriage Day</div>
+                        <div class="vacation-description">Wedding day celebrations</div>
+                    </div>
+
+                    <div class="vacation-card" onclick="selectVacation('anniversary')">
+                        <div class="vacation-icon">🎊</div>
+                        <div class="vacation-title">Marriage Anniversary</div>
+                        <div class="vacation-description">Annual wedding celebrations</div>
+                    </div>
+
+                    <div class="vacation-card" onclick="selectVacation('shop')">
+                        <div class="vacation-icon">🏪</div>
+                        <div class="vacation-title">Shop Opening</div>
+                        <div class="vacation-description">Business inauguration events</div>
+                    </div>
+                </div>
+
+                <div id="selectedVacation" class="selected-vacation" style="display: none;">
+                    <h3>Selected Vacation</h3>
+                    <p id="selectedVacationText"></p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="submitSelection()">Submit Selection</button>
+                    <button class="btn btn-secondary" onclick="goBack()">Back to Sign Up</button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" style="display: none;">
+                <div class="filters-section">
+                    <h2>Your Selection Results</h2>
+                    <div class="selected-info">
+                        <p><strong>State:</strong> <span id="selected-state"></span></p>
+                        <p><strong>City:</strong> <span id="selected-city"></span></p>
+                        <p><strong>Vacation Type:</strong> <span id="selected-vacation-type"></span></p>
+                    </div>
+                </div>
+
+                <div class="vacation-section">
+                    <h2>Vacation Image</h2>
+                    <div id="vacation-image-container" style="text-align: center; margin: 20px 0;"></div>
+                </div>
+
+                <div class="filters-section">
+                    <h2>Our Contact Details</h2>
+                    <div id="contact-info">
+                        <div class="filter-group">
+                            <div class="form-group">
+                                <label>Mobile Number</label>
+                                <div style="padding: 12px 15px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; color: #333;">
+                                    9951398555
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <div style="padding: 12px 15px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; color: #333;">
+                                    mrchantirm116@gmail.com
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin: 20px 0; padding: 15px; background: #e7f3ff; border-radius: 8px;">
+                            <p style="color: #0056b3; font-weight: 600; margin: 0;">
+                                Please contact us for any inquiries or assistance with your vacation planning.
+                            </p>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="copyContactDetails()">Copy Contact Details</button>
+                            <button class="btn btn-secondary" onclick="goBackToSelection()">Back to Selection</button>
+                        </div>
+                    </div>
+
+                    <div id="contact-success" style="display: none; text-align: center; padding: 20px; background: #d4edda; border-radius: 8px;">
+                        <h3 style="color: #155724;">Contact Details Copied!</h3>
+                        <p style="color: #155724;">Our contact information has been copied to your clipboard.</p>
+                    </div>
+                </div>
+
+                <div class="vacation-section">
+                    <h2>Visiting Card</h2>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="visting card image.jpg" 
+                             alt="Visiting Card" 
+                             style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                        <p style="margin-top: 15px; color: #666; font-size: 14px;">
+                            Your visiting card will be displayed here. Please contact us for your personalized visiting card.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State-City mapping
+        const stateCities = {
+            'maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'],
+            'gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Gandhinagar'],
+            'karnataka': ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum'],
+            'tamilnadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'],
+            'delhi': ['New Delhi', 'Noida', 'Gurgaon', 'Faridabad', 'Ghaziabad'],
+            'up': ['Lucknow', 'Kanpur', 'Varanasi', 'Agra', 'Allahabad'],
+            'westbengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'],
+            'rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota', 'Bikaner']
+        };
+
+        let selectedVacation = '';
+
+        function updateCities() {
+            const stateSelect = document.getElementById('state');
+            const citySelect = document.getElementById('city');
+            const selectedState = stateSelect.value;
+            
+            // Clear existing cities
+            citySelect.innerHTML = '<option value="">Select City</option>';
+            
+            if (selectedState && stateCities[selectedState]) {
+                stateCities[selectedState].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.toLowerCase();
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+
+        function selectVacation(type) {
+            selectedVacation = type;
+            
+            // Remove selected class from all cards
+            document.querySelectorAll('.vacation-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            event.currentTarget.classList.add('selected');
+            
+            // Show selected vacation info
+            const selectedDiv = document.getElementById('selectedVacation');
+            const selectedText = document.getElementById('selectedVacationText');
+            
+            selectedDiv.style.display = 'block';
+            
+            switch(type) {
+                case 'birthday':
+                    selectedText.textContent = 'Birthday Celebration Selected';
+                    break;
+                case 'death':
+                    selectedText.textContent = 'Death Day Memorial Selected';
+                    break;
+                case 'marriage':
+                    selectedText.textContent = 'Marriage Day Celebration Selected';
+                    break;
+                case 'anniversary':
+                    selectedText.textContent = 'Marriage Anniversary Selected';
+                    break;
+                case 'shop':
+                    selectedText.textContent = 'Shop Opening Event Selected';
+                    break;
+            }
+        }
+
+        function submitSelection() {
+            const state = document.getElementById('state').value;
+            const city = document.getElementById('city').value;
+            
+            if (!state || !city) {
+                alert('Please select both state and city');
+                return;
+            }
+            
+            if (!selectedVacation) {
+                alert('Please select a vacation type');
+                return;
+            }
+            
+            // Hide selection section and show results section
+            document.querySelector('.filters-section').style.display = 'none';
+            document.querySelector('.vacation-section').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+            
+            // Display appropriate image based on vacation type
+            displayVacationImage(selectedVacation);
+            
+            // Update results text
+            document.getElementById('selected-state').textContent = state;
+            document.getElementById('selected-city').textContent = city;
+            document.getElementById('selected-vacation-type').textContent = selectedVacation;
+            
+            // Here you would typically send this data to your backend
+            console.log('Submitted:', { state, city, vacation: selectedVacation });
+        }
+        
+        function displayVacationImage(vacationType) {
+            const imageContainer = document.getElementById('vacation-image-container');
+            imageContainer.innerHTML = '';
+            
+            let imageSrc = '';
+            let altText = '';
+            
+            switch(vacationType) {
+                case 'birthday':
+                    imageSrc = 'Birthday%20image%20.jpg';
+                    altText = 'Birthday Celebration';
+                    break;
+                case 'marriage':
+                case 'anniversary':
+                    imageSrc = 'Marriage%20Anniversary%20image%20.jpg';
+                    altText = 'Marriage Anniversary';
+                    break;
+                case 'death':
+                    imageSrc = 'https://via.placeholder.com/600x400/333333/ffffff?text=Death+Day+Memorial';
+                    altText = 'Death Day Memorial';
+                    break;
+                case 'shop':
+                    imageSrc = 'https://via.placeholder.com/600x400/007bff/ffffff?text=Shop+Opening';
+                    altText = 'Shop Opening';
+                    break;
+                default:
+                    imageSrc = 'https://via.placeholder.com/600x400/666666/ffffff?text=Vacation+Image';
+                    altText = 'Vacation Image';
+            }
+            
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.alt = altText;
+            img.style.width = '100%';
+            img.style.maxWidth = '600px';
+            img.style.height = 'auto';
+            img.style.borderRadius = '10px';
+            img.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+            
+            imageContainer.appendChild(img);
+        }
+        
+        function copyContactDetails() {
+            const contactInfo = "Mobile: 9951398555\nEmail: mrchantirm116@gmail.com";
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(contactInfo).then(() => {
+                // Show success message
+                document.getElementById('contact-success').style.display = 'block';
+                
+                // Hide success message after 3 seconds
+                setTimeout(() => {
+                    document.getElementById('contact-success').style.display = 'none';
+                }, 3000);
+                
+                alert('Contact details copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy contact details. Please copy them manually:\n\n' + contactInfo);
+            });
+        }
+        
+        function goBackToSelection() {
+            // Show selection section and hide results section
+            document.querySelector('.filters-section').style.display = 'block';
+            document.querySelector('.vacation-section').style.display = 'block';
+            document.getElementById('results-section').style.display = 'none';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // You can add any initialization code here
+        });
+    </script>
+</body>
+</html>

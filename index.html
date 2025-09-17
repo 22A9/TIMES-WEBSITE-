@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Sign Up</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .social-login {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .social-btn.google:hover {
+            border-color: #DB4437;
+            color: #DB4437;
+        }
+
+        .social-btn.facebook:hover {
+            border-color: #4267B2;
+            color: #4267B2;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .remember input {
+            width: auto;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Sign Up</h1>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+            </div>
+
+            <div class="remember">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember me</label>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="signUp()">Sign Up</button>
+
+            <div class="social-login">
+                <p>Or sign up with</p>
+                <div class="social-buttons">
+                    <button type="button" class="social-btn google" onclick="signInWithGoogle()">
+                        <span>Google</span>
+                    </button>
+                    <button type="button" class="social-btn facebook" onclick="signInWithFacebook()">
+                        <span>Facebook</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Facebook SDK -->
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+    <script>
+        // Initialize Facebook SDK
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId: 'YOUR_FACEBOOK_APP_ID', // Replace with your Facebook App ID
+                cookie: true,
+                xfbml: true,
+                version: 'v18.0'
+            });
+        };
+
+        function signUp() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember').checked;
+
+            // Basic validation
+            if (!name || !email || !password) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            // Simulate successful sign-up
+            showMessage('Account created successfully! Redirecting to dashboard...', 'success');
+            
+            // Here you would typically submit the form to your backend
+            setTimeout(() => {
+                // Redirect to dashboard after successful sign-up
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+
+        function signInWithGoogle() {
+            const googleClient = google.accounts.oauth2.initTokenClient({
+                client_id: 'YOUR_GOOGLE_CLIENT_ID', // Replace with your Google Client ID
+                scope: 'email profile',
+                callback: (response) => {
+                    if (response.error) {
+                        showMessage('Google sign-in failed: ' + response.error, 'error');
+                        return;
+                    }
+                    
+                    // Use the access token to get user info
+                    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                        headers: {
+                            'Authorization': `Bearer ${response.access_token}`
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(userInfo => {
+                        showMessage(`Welcome ${userInfo.name}! Google sign-in successful`, 'success');
+                        console.log('Google user info:', userInfo);
+                        
+                        // Here you would typically send this data to your backend
+                        setTimeout(() => {
+                            alert(`Google sign-in completed! Welcome ${userInfo.name}`);
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        showMessage('Failed to fetch user info from Google', 'error');
+                        console.error('Google user info error:', error);
+                    });
+                }
+            });
+            
+            googleClient.requestAccessToken();
+        }
+
+        function signInWithFacebook() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    // User is logged in and granted permissions
+                    FB.api('/me', { fields: 'name,email' }, function(userInfo) {
+                        showMessage(`Welcome ${userInfo.name}! Facebook sign-in successful`, 'success');
+                        console.log('Facebook user info:', userInfo);
+                        
+                        // Here you would typically send this data to your backend
+                        setTimeout(() => {
+                            alert(`Facebook sign-in completed! Welcome ${userInfo.name}`);
+                        }, 1000);
+                    });
+                } else {
+                    showMessage('Facebook sign-in was cancelled', 'info');
+                }
+            }, { scope: 'email,public_profile' });
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Add loading states for social buttons
+        function setButtonLoading(button, isLoading) {
+            const originalText = button.querySelector('span').textContent;
+            if (isLoading) {
+                button.disabled = true;
+                button.querySelector('span').textContent = 'Loading...';
+                button.style.opacity = '0.7';
+            } else {
+                button.disabled = false;
+                button.querySelector('span').textContent = originalText;
+                button.style.opacity = '1';
+            }
+        }
+    </script>
+</body>
+</html>
